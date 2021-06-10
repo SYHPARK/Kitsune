@@ -67,10 +67,14 @@ class FE:
         ##If file is pcap
         elif type == "pcap" or type == 'pcapng':
             # Try parsing via tshark dll of wireshark (faster)
-            if os.path.isfile(self._tshark):
+            if False:#os.path.isfile(self._tshark):
+                pass
+                '''
                 self.pcap2tsv_with_tshark()  # creates local tsv file
                 self.path += ".tsv"
                 self.parse_type = "tsv"
+                '''
+# Only reach here
             else: # Otherwise, parse with scapy (slower)
                 print("tshark not found. Trying scapy...")
                 self.parse_type = "scapy"
@@ -80,6 +84,8 @@ class FE:
 
         ### open readers ##
         if self.parse_type == "tsv":
+            pass
+            '''
             maxInt = sys.maxsize
             decrement = True
             while decrement:
@@ -99,10 +105,15 @@ class FE:
             self.tsvinf = open(self.path, 'rt', encoding="utf8")
             self.tsvin = csv.reader(self.tsvinf, delimiter='\t')
             row = self.tsvin.__next__() #move iterator past header
-
+            '''
+            
+# Only reach here
         else: # scapy
             print("Reading PCAP file via Scapy...")
             self.scapyin = rdpcap(self.path)
+            #print("[*] scapyin: ", end="")
+            #for i in range(0, 20):
+            #    print(str(self.scapyin[i])[170:])
             self.limit = len(self.scapyin)
             print("Loaded " + str(len(self.scapyin)) + " Packets.")
 
@@ -114,6 +125,8 @@ class FE:
 
         ### Parse next packet ###
         if self.parse_type == "tsv":
+            pass
+            '''
             row = self.tsvin.__next__()
             IPtype = np.nan
             timestamp = row[0]
@@ -147,8 +160,11 @@ class FE:
                 elif srcIP + srcproto + dstIP + dstproto == '':  # some other protocol
                     srcIP = row[2]  # src MAC
                     dstIP = row[3]  # dst MAC
+            '''
 
         elif self.parse_type == "scapy":
+            #Our text analysis code
+            '''
             packet = self.scapyin[self.curPacketIndx]
             IPtype = np.nan
             timestamp = packet.time
@@ -191,6 +207,7 @@ class FE:
                 elif srcIP + srcproto + dstIP + dstproto == '':  # some other protocol
                     srcIP = packet.src  # src MAC
                     dstIP = packet.dst  # dst MAC
+            '''
         else:
             return []
 
@@ -199,10 +216,23 @@ class FE:
 
         ### Extract Features
         try:
+            # Our text analysis code
+            # Should have same dimension as res
+
+            # res information
+            # TYPE: numpy.ndarray
+            # LENGTH: 100
+            # TYPE of ELEMENT: numpy.float64
+
+            # Example
+            # [1.93752839e+00 4.33731895e+02 3.42749948e+03 2.71561316e+00
+            #  4.42516172e+02 3.75705051e+03 7.49886224e+00 4.52194001e+02
+            #  ...
+            # ]
             res = self.nstat.updateGetStats(IPtype, srcMAC, dstMAC, srcIP, srcproto, dstIP, dstproto,
                                                  int(framelen),
                                                  float(timestamp))
-            #print("[*] FE.get_next_vector: ", res)
+            print("[*] FE.get_next_vector: ", type(res[0]))
             return res
         
         except Exception as e:
