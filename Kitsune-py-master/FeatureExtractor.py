@@ -163,7 +163,10 @@ class FE:
             '''
 
         elif self.parse_type == "scapy":
-            #Our text analysis code
+            # Our text analysis code
+
+            # Packet below contains http payload in the form of string
+            packet = self.scapyin[self.curPacketIndx]
             '''
             packet = self.scapyin[self.curPacketIndx]
             IPtype = np.nan
